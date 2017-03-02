@@ -1,0 +1,6 @@
+web.py
+nose
+requests
+PyYAML
+jsonpath-rw
+pydash
