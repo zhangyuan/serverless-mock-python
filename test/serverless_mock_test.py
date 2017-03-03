@@ -27,8 +27,8 @@ class TestServerlessMock(object):
         response = requests.get(self.url(""))
         eq_("Hello World", response.text)
 
-    def test_run_get_function(self):
-        response = requests.get(self.url("/hello"))
+    def test_simple_get(self):
+        response = requests.get(self.url("/simple_get"))
 
         eq_(200, response.status_code)
 
@@ -38,8 +38,8 @@ class TestServerlessMock(object):
         body = json.loads(data.get("body"))
         eq_("Go Serverless v1.0! Your function executed successfully!", body.get("message"))
 
-    def test_run_get_function_and_ignore_query_string_when_matching_path(self):
-        response = requests.get(self.url("/hello?status=unknown"))
+    def test_simple_get_and_ignore_query_string(self):
+        response = requests.get(self.url("/simple_get?status=unknown"))
 
         eq_(200, response.status_code)
 
@@ -49,8 +49,8 @@ class TestServerlessMock(object):
         body = json.loads(data.get("body"))
         eq_("Go Serverless v1.0! Your function executed successfully!", body.get("message"))
 
-    def test_run_post_function(self):
-        response = requests.post(self.url("/create"))
+    def test_simple_post(self):
+        response = requests.post(self.url("/simple_post"))
         eq_(200, response.status_code)
 
         data = response.json()

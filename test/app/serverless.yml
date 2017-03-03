@@ -54,21 +54,28 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-  hello:
-    handler: handler.hello
+  simple_get:
+    handler: handler.simple_get
     events:
       - http:
           method: get
           integration: lambda
-          path: hello
-  create:
-    handler: handler.create
+          path: simple_get
+  simple_post:
+    handler: handler.simple_post
     events:
       - http:
           method: post
           integration: lambda
-          path: create
+          path: simple_post
 
+  post_with_payload:
+    handler: handler.post_with_payload
+    events:
+      - http:
+          method: post
+          integration: lambda
+          path: post_with_payload
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details

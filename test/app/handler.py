@@ -2,7 +2,7 @@ import json
 from models.user import User
 
 
-def hello(event, context):
+def simple_get(event, context):
     body = {
         "message": "Go Serverless v1.0! Your function executed successfully!",
         "input": event
@@ -16,7 +16,7 @@ def hello(event, context):
     return response
 
 
-def  create(event, context):
+def simple_post(event, context):
     user = User()
     user.save()
 
