@@ -67,7 +67,8 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     event = json.loads(raw_body)
                     if handler.template is not None:
                         template = handler.template
-                        event = self.replace_input_json_in_template(raw_body, template)
+                        in_template = self.replace_input_json_in_template(raw_body, template)
+                        event = json.loads(in_template)
 
                     body = getattr(handler.module, handler.function_name)(event, {})
                 else:
@@ -78,13 +79,16 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         else:
             self.wfile.write("Hello World")
 
+
     def replace_input_json_in_template(self, raw_body, template):
         input_json = re.search("\$input\.json\(['\"](.*?)['\"]\)", template)
         if input_json:
             command, path = input_json.group(0), input_json.group(1)
             jsonpath_expr = parse(path)
             command_result = jsonpath_expr.find(raw_body)[0].value
-            return json.loads(template.replace(command, command_result))
+            return template.replace(command, command_result)
+        else:
+            return template
 
     @staticmethod
     def create_handlers():
