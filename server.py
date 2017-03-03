@@ -55,7 +55,16 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def perform(self, handler):
         if handler is not None:
-            body = getattr(handler.module, handler.function_name)({}, {})
+            if handler.method == "post":
+                content_length = int(self.headers.getheader('content-length', 0))
+
+                if content_length > 0:
+                    request_body = self.rfile.read(content_length)
+                    body = getattr(handler.module, handler.function_name)(json.loads(request_body), {})
+                else:
+                    body = getattr(handler.module, handler.function_name)({}, {})
+            else:
+                body = getattr(handler.module, handler.function_name)({}, {})
             self.wfile.write(json.dumps(body))
         else:
             self.wfile.write("Hello World")

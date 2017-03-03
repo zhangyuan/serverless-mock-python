@@ -19,7 +19,13 @@ def simple_get(event, context):
 def simple_post(event, context):
     user = User()
     user.save()
-
     return {
         "statusCode" : 201
+    }
+
+
+def post_with_payload(event, context):
+    return {
+        "statusCode" : 200,
+        "body" : event
     }
