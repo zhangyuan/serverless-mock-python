@@ -64,5 +64,13 @@ class TestServerlessMock(object):
         eq_(200, data.get("statusCode"))
         eq_({"id" : 123}, data.get("body"))
 
+    def test_post_with_payload_and_template(self):
+        response = requests.post(self.url("/post_with_payload_and_template"), data=json.dumps({"id" : 123}))
+        eq_(200, response.status_code)
+
+        data = response.json()
+        eq_(200, data.get("statusCode"))
+        eq_({"body" : {"id" : 123}}, data.get("body"))
+
     def url(self, path):
         return "%s%s" % (self.prefix, path)

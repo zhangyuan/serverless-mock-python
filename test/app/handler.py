@@ -29,3 +29,10 @@ def post_with_payload(event, context):
         "statusCode" : 200,
         "body" : event
     }
+
+
+def post_with_payload_and_template(event, context):
+    return {
+        "statusCode" : 200,
+        "body" : event
+    }

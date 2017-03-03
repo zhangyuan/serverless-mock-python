@@ -76,6 +76,18 @@ functions:
           method: post
           integration: lambda
           path: post_with_payload
+
+  post_with_payload_and_template:
+    handler: handler.post_with_payload_and_template
+    events:
+      - http:
+          method: post
+          integration: lambda
+          path: post_with_payload_and_template
+          request:
+            template:
+              application/json: >
+                { "body" : $input.json('$') }
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details

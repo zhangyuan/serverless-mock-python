@@ -3,7 +3,9 @@ import imp
 import json
 import os
 import yaml
+import re
 import sys
+from jsonpath_rw import jsonpath, parse
 
 
 class Httpd(object):
@@ -22,12 +24,14 @@ class Httpd(object):
     def serve(self):
         self.http_server.serve_forever()
 
+
 class Handler(object):
     def __init__(self):
         self.method = None
         self.path = None
         self.module = None
         self.function_name = None
+        self.template = None
 
 
 class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
@@ -59,8 +63,13 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 content_length = int(self.headers.getheader('content-length', 0))
 
                 if content_length > 0:
-                    request_body = self.rfile.read(content_length)
-                    body = getattr(handler.module, handler.function_name)(json.loads(request_body), {})
+                    raw_body = self.rfile.read(content_length)
+                    event = json.loads(raw_body)
+                    if handler.template is not None:
+                        template = handler.template
+                        event = self.replace_input_json_in_template(raw_body, template)
+
+                    body = getattr(handler.module, handler.function_name)(event, {})
                 else:
                     body = getattr(handler.module, handler.function_name)({}, {})
             else:
@@ -69,6 +78,13 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         else:
             self.wfile.write("Hello World")
 
+    def replace_input_json_in_template(self, raw_body, template):
+        input_json = re.search("\$input\.json\(['\"](.*?)['\"]\)", template)
+        if input_json:
+            command, path = input_json.group(0), input_json.group(1)
+            jsonpath_expr = parse(path)
+            command_result = jsonpath_expr.find(raw_body)[0].value
+            return json.loads(template.replace(command, command_result))
 
     @staticmethod
     def create_handlers():
@@ -91,6 +107,7 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     path = event["http"]["path"]
                     method = event["http"]["method"]
 
+
                     if path[0] != "/":
                         path = "/" + path
                     h = Handler()
@@ -98,6 +115,12 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     h.path = path
                     h.module = handler_module
                     h.function_name = function_name
+
+                    jsonpath_expr = parse("http.request.template.'application/json'")
+                    templates = jsonpath_expr.find(event)
+                    if len(templates) > 0:
+                        h.template = templates[0].value
+
                     handlers.append(h)
         return handlers
 
